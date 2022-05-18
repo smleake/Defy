@@ -1,12 +1,11 @@
 import fetch from "node-fetch";
-import configs from "./config.json";
 import didYouMean from "didyoumean2";
 
 const fetch_all_defs = async (query) => {
     let suggested = false;
     const [wnik_defs, mw_defs] = await Promise.all([
         fetch(
-            `https://api.wordnik.com/v4/word.json/${query}/definitions?limit=10&includeRelated=false&sourceDictionaries=wiktionary&useCanonical=false&includeTags=false&api_key=${configs.wnik}`
+            `https://api.wordnik.com/v4/word.json/${query}/definitions?limit=10&includeRelated=false&sourceDictionaries=wiktionary&useCanonical=false&includeTags=false&api_key=${process.env.WNIK_KEY}`
         )
             .then((wnik_res) => wnik_res.json())
             .then((data) => {
@@ -38,7 +37,7 @@ const fetch_all_defs = async (query) => {
                 return formatted;
             }),
         fetch(
-            `https://www.dictionaryapi.com/api/v3/references/collegiate/json/${query}?key=${configs.mw}`
+            `https://www.dictionaryapi.com/api/v3/references/collegiate/json/${query}?key=${process.env.MW_DICT_KEY}`
         )
             .then((mw_res) => mw_res.json())
             .then((data) => {
@@ -86,7 +85,7 @@ const fetch_all_defs = async (query) => {
 };
 const fetch_thesaurus = async (query) => {
     const api_response = await fetch(
-        `https://www.dictionaryapi.com/api/v3/references/thesaurus/json/${query}?key=${configs.mw_thes}`
+        `https://www.dictionaryapi.com/api/v3/references/thesaurus/json/${query}?key=${process.env.MW_THES_KEY}`
     );
     const data = await api_response.json();
     if (data.length === 0 || data[0].hwi === undefined)

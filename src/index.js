@@ -5,11 +5,12 @@ import {
     fetch_thesaurus,
     handleCorrections,
 } from "./utils.js";
+import {config} from "dotenv"
 import fs from "fs";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
-import configs from "./config.json";
 import { define_components, thesaurus_components } from "./message-layout.js";
+config()
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const client = new Client({
@@ -275,7 +276,7 @@ client.on("interactionCreate", async (interaction) => {
                 ephemeral: true,
             });
         }
-    }
+    } 
 });
 
-client.login(configs.token);
+client.login(process.env.DISC_TOKEN);
