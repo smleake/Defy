@@ -8,8 +8,7 @@ const define_components = async (
     start,
     perf,
     index,
-    currentDict,
-    createdAt
+    currentDict
 ) => {
     // probably want to avoid something like this
 
@@ -127,8 +126,7 @@ const thesaurus_components = async (
     start,
     perf,
     index,
-    thes_selection,
-    createdAt
+    thes_selection
 ) => {
     if (start > 0) {
         const end = performance.now();
@@ -141,6 +139,7 @@ const thesaurus_components = async (
             new MessageEmbed()
                 .setColor("#000000")
                 .setTitle(`${word} (*${thesaurus[index].hw}*)`)
+                .setURL(thesaurus[index].source_url)
                 .setDescription(`***${thesaurus[index].fl}***`)
                 .addField(
                     `${

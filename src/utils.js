@@ -101,11 +101,13 @@ const fetch_thesaurus = async (query) => {
             },
         };
     const formatted_result = data.map((entry) => {
+        const headword = entry.hwi.hw.replace(/\*/g, "")
         return {
             hw: entry.hwi.hw.replace(/\*/g, "·"),
             fl: entry.fl,
             syns: (entry.meta.syns.length !== 0) ? entry.meta.syns : null,
-            ants: (entry.meta.ants.length !== 0) ? entry.meta.ants : null
+            ants: (entry.meta.ants.length !== 0) ? entry.meta.ants : null,
+            source_url: `https://www.merriam-webster.com/thesaurus/${encodeURIComponent(headword)}`
         }
     });
     return formatted_result;
