@@ -159,7 +159,7 @@ const handleCorrections = async (
     const new_entries = (commandName === 'define') ? await fetch_all_defs(new_query) : await fetch_thesaurus(new_query);
     let valid_selection = ""
     if(commandName === "define"){
-        valid_selection = typeof new_defs.MW === "string" && new_defs.Wordnik !== null
+        valid_selection = typeof new_entries.MW === "string" && new_entries.Wordnik !== null
             ? "Wordnik"
             : "MW";
     }

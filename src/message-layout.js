@@ -34,7 +34,7 @@ const define_components = async (
                 .setDescription(
                     `**${definitions[currentDict][index].fl} —** *from ${
                         definitions[currentDict][index].date
-                    } ${
+                    }${
                         definitions[currentDict][index].offensive
                             ? "(offensive)*"
                             : "*"
