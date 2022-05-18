@@ -1,0 +1,8 @@
+{
+    "guildID": "optional for testing",
+    "clientID": "Discord bot's id",
+    "token": "secret token",
+    "wnik": "Wordnik api key",
+    "mw": "Merriam Webster dictionary key",
+    "mw_thes": "Merriam Webster thesaurus key"
+}

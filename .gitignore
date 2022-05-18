@@ -1,0 +1,5 @@
+.env
+/node_modules
+prefixes.db
+test.js
+config.json
