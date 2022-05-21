@@ -128,6 +128,9 @@ const thesaurus_components = async (
     index,
     thes_selection
 ) => {
+    if(thes_selection === "Antonyms" && thesaurus[index].ants === null)
+        thes_selection = "Synonyms"
+        
     if (start > 0) {
         const end = performance.now();
         perf = `${end - start > 1 ? parseInt(end - start) : "< 1"}ms${
