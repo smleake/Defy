@@ -112,7 +112,7 @@ const fetch_thesaurus = async (query) => {
     return formatted_result;
 };
 const clean_query = (query) => {
-    return query.toLowerCase().replace(/[^0-9a-z/-]/gi, "");
+    return query.toLowerCase().replace(/[^0-9a-z/-\s]/gi, "");
 };
 const reactionCollector = (
     message,
