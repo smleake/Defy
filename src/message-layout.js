@@ -80,7 +80,7 @@ const define_components = async (
                         placeholder: "Select dictionary source",
                         customId: "select-dict",
                         options: Object.keys(definitions).flatMap((dict) => {
-                            if (typeof definitions[dict] !== "object")
+                            if (typeof definitions[dict] !== "object" || definitions[dict] === null)
                                 return [];
                             return {
                                 label:
