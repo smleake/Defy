@@ -4,6 +4,7 @@ import {
     fetch_all_defs,
     fetch_thesaurus,
     handleCorrections,
+    validate_user
 } from "./utils.js";
 import {config} from "dotenv"
 import fs from "fs";
@@ -19,6 +20,8 @@ const client = new Client({
         Intents.FLAGS.GUILD_MESSAGE_TYPING,
         Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
         Intents.FLAGS.GUILDS,
+        Intents.FLAGS.GUILD_MEMBERS,
+        Intents.FLAGS.GUILD_PRESENCES
     ],
     partials: ["CHANNEL", "MESSAGE", "REACTION"],
 });
@@ -28,7 +31,7 @@ const commandFiles = fs
     .filter((file) => file.endsWith(".js"));
 const cache = {};
 const clearCache = () => {
-    console.log("Clearing cache");
+    console.log(`Clearing cache of size ${Object.keys(cache).length} at ${new Date().toISOString()}`);
     for (const prop of Object.getOwnPropertyNames(cache)) {
         delete cache[prop];
     }
@@ -84,6 +87,12 @@ client.on("messageReactionAdd", async (reaction, user) => {
         }
     }
 });
+client.on("messageCreate", async (message) => {
+    // const channel_members = message.channel.members
+    // const channel = message.
+    // console.log(message.channel.members)
+    // console.log(await message.guild.roles.fetch())
+})
 // feel like this can be refactored to not have switch statements at all and keep command code in their respective files
 client.on("interactionCreate", async (interaction) => {
     if (interaction.isCommand()) {
@@ -97,13 +106,15 @@ client.on("interactionCreate", async (interaction) => {
                     const query = clean_query(
                         interaction.options.getString("word")
                     );
+                    const user_mention = interaction.options.getString("mention")
                     if (cache[query] && cache[query].defs) {
                         await command.execute(
                             interaction,
                             query,
                             cache[query].defs,
                             cache[query].currDict,
-                            start
+                            start,
+                            user_mention
                         );
                     } else {
                         const defs = await fetch_all_defs(query);
@@ -123,7 +134,8 @@ client.on("interactionCreate", async (interaction) => {
                             query,
                             defs,
                             currentDict,
-                            start
+                            start,
+                            user_mention
                         );
                     }
                     break;

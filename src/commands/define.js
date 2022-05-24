@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { reactionCollector } from "../utils.js";
+import { reactionCollector, validate_user } from "../utils.js";
 import { define_components } from "../message-layout.js";
 
 export const data = new SlashCommandBuilder()
@@ -9,19 +9,29 @@ export const data = new SlashCommandBuilder()
         option
             .setName("word")
             .setRequired(true)
-            .setDescription("select a word to define")
-    );
-export async function execute(interaction, query, defs, currentDict, start) {
+            .setDescription("Select a word to define.")
+    )
+    .addStringOption((option) =>
+        option
+            .setName("mention")
+            .setDescription("Optionally tag other users in the response.")
+    )
+export async function execute(interaction, query, defs, currentDict, start, mention) {
     try {
         if (!defs.not_found) {
+            if(mention !== null) {
+                const validate = validate_user(mention, interaction.channel.members, interaction.guild.roles.cache, interaction.user.id)
+                mention = (validate.error === null) ? validate.message.join(" ") : validate.error
+            }
             const filter = (reaction, user) => {
-                return (
+                return ( 
                     reaction.emoji.name === "❌" &&
                     user.id === interaction.user.id
                 );
             };
+            
             const message = await interaction.reply(
-                await define_components(query, defs, start, "", 0, currentDict)
+                await define_components(query, defs, start, "", 0, currentDict, mention)
             );
             await message.react("❌");
             reactionCollector(

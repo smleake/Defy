@@ -189,11 +189,26 @@ const handleCorrections = async (
     );
     console.log("Returned from recursive call");
 };
+//bad? somewhat
+const validate_user = (mention_string, members_list, roles_list, interaction_creator) => {
+    const res = {message: null, error: null} 
+    const match_list = mention_string.match(/<@.?[0-9]*?>/g);
+    res.message = (match_list !== null) ? match_list.flatMap(match => {
+        const cleaned_id = match.replace(/[^0-9]/g, "")
+        if(members_list.get(cleaned_id) !== undefined || roles_list.get(cleaned_id) !== undefined)
+            return match
+        return []
+    }) : null
+    res.error = (res.message === null) ? `Couldn't find the user(s) you mentioned. Please keep in mind that you cannot mention @ everyone or @ here. <@${interaction_creator}>` : null
+    // console.log(message.join(" "))
+    return res
+}
 
 export {
     fetch_all_defs,
     fetch_thesaurus,
     clean_query,
+    validate_user,
     reactionCollector,
     handleCorrections,
 };

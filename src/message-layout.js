@@ -8,15 +8,14 @@ const define_components = async (
     start,
     perf,
     index,
-    currentDict
+    currentDict,
+    mention
 ) => {
     // probably want to avoid something like this
 
     if (start > 0) {
         const end = performance.now();
-        perf = `${end - start > 1 ? parseInt(end - start) : "< 1"}ms${
-            perf === "cached" ? " (cached result)" : ""
-        }`;
+        perf = `${end - start > 1 ? parseInt(end - start) : "< 1"}ms`
     }
 
     const message = {
@@ -116,7 +115,7 @@ const define_components = async (
             },
         ],
         fetchReply: true,
-        content: "\n",
+        content: mention,
     };
     return message;
 };
