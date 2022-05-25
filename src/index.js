@@ -189,8 +189,8 @@ client.on("interactionCreate", async (interaction) => {
                 case "define": {
                     const interaction_type = (interaction.isSelectMenu()) ? interaction.values[0] : interaction.customId
                     //legacy support for when the bot used a hyphen as a tokenizer
-                    const [word, current_index, perf, dict, direction] = (interaction_type).split(`${interaction_type.includes('-') ? "-" : "="}`);
-                    console.log(`Word: ${word}\nIndex: ${current_index}\nPerf: ${perf}\nDict: ${dict}\nDir: ${direction}`)
+                    const [word, current_index, perf, dict, direction] = (interaction_type).split(`${interaction_type.includes('=') ? "=" : "-"}`);
+                    // console.log(`Word: ${word}\nIndex: ${current_index}\nPerf: ${perf}\nDict: ${dict}\nDir: ${direction}`)
                     const new_index =
                         direction === undefined // ???? valid
                             ? parseInt(current_index)
@@ -235,7 +235,7 @@ client.on("interactionCreate", async (interaction) => {
                 case "thesaurus": {
                     const interaction_type = (interaction.isSelectMenu()) ? interaction.values[0] : interaction.customId
                     //legacy support for when the bot used a hyphen as a tokenizer
-                    const [word, current_index, perf, selection, direction] = (interaction_type).split(`${interaction_type.includes('-') ? "-" : "="}`);
+                    const [word, current_index, perf, selection, direction] = (interaction_type).split(`${interaction_type.includes('=') ? "=" : "-"}`);
                     /* 
                         if direction = undefined -> new index = current index
                         if direction = next -> new index = current index + 1

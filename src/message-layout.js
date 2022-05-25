@@ -12,7 +12,6 @@ const define_components = async (
     mention
 ) => {
     // probably want to avoid something like this
-    console.log(definitions[currentDict])
     if (start > 0) {
         const end = performance.now();
         perf = `${end - start > 1 ? parseInt(end - start) : "< 1"}ms`
