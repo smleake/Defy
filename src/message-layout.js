@@ -12,7 +12,7 @@ const define_components = async (
     mention
 ) => {
     // probably want to avoid something like this
-
+    console.log(definitions[currentDict])
     if (start > 0) {
         const end = performance.now();
         perf = `${end - start > 1 ? parseInt(end - start) : "< 1"}ms`
@@ -59,14 +59,14 @@ const define_components = async (
                         type: "BUTTON",
                         style: "SECONDARY",
                         label: "Previous definition",
-                        customId: `${word}-${index}-${perf}-${currentDict}-prev`,
+                        customId: `${word}=${index}=${perf}=${currentDict}=prev`,
                         disabled: index === 0,
                     },
                     {
                         type: "BUTTON",
                         style: "SECONDARY",
                         label: "Next definition",
-                        customId: `${word}-${index}-${perf}-${currentDict}-next`,
+                        customId: `${word}=${index}=${perf}=${currentDict}=next`,
                         disabled: index + 1 >= definitions[currentDict].length,
                     },
                 ],
@@ -86,7 +86,7 @@ const define_components = async (
                                     dict === "MW"
                                         ? "Merriam-Webster"
                                         : "Wiktionary",
-                                value: `${word}-${0}-${perf}-${dict}`,
+                                value: `${word}=${0}=${perf}=${dict}`,
                                 default: dict === currentDict,
                             };
                         }),
@@ -106,7 +106,7 @@ const define_components = async (
                                     def.syls ? def.syls : word
                                 } (${def.fl})`,
                                 description: trim(def.defs.join(", "), 100),
-                                value: `${word}-${ind}-${perf}-${currentDict}`,
+                                value: `${word}=${ind}=${perf}=${currentDict}`,
                                 default: ind === index,
                             };
                         }),
@@ -177,14 +177,14 @@ const thesaurus_components = async (
                         type: "BUTTON",
                         style: "SECONDARY",
                         label: "Previous",
-                        customId: `${word}-${index}-${perf}-${thes_selection}-prev`,
+                        customId: `${word}=${index}=${perf}=${thes_selection}=prev`,
                         disabled: index === 0,
                     },
                     {
                         type: "BUTTON",
                         style: "SECONDARY",
                         label: "Next",
-                        customId: `${word}-${index}-${perf}-${thes_selection}-next`,
+                        customId: `${word}=${index}=${perf}=${thes_selection}=next`,
                         disabled: index + 1 >= thesaurus.length,
                     },
                 ],
@@ -205,7 +205,7 @@ const thesaurus_components = async (
                                 return [];
                             return {
                                 label: select,
-                                value: `${word}-${index}-${perf}-${select}`,
+                                value: `${word}=${index}=${perf}=${select}`,
                                 default: select === thes_selection,
                             };
                         }),
@@ -221,7 +221,7 @@ const thesaurus_components = async (
                         customId: "select-specific",
                         options: thesaurus.map((elm, ind) => ({
                             label: `${ind + 1} - ${elm.hw} (${elm.fl})`,
-                            value: `${word}-${ind}-${perf}-${thes_selection}`,
+                            value: `${word}=${ind}=${perf}=${thes_selection}`,
                             default: ind === index
                         }))
                     },

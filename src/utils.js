@@ -178,7 +178,8 @@ const handleCorrections = async (
             restart_timer,
             "",
             0,
-            valid_selection
+            valid_selection,
+            "\n"
         )
     );
     reactionCollector(
