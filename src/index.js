@@ -3,8 +3,7 @@ import {
     clean_query,
     fetch_all_defs,
     fetch_thesaurus,
-    handleCorrections,
-    validate_user
+    handleCorrections
 } from "./utils.js";
 import {config} from "dotenv"
 import fs from "fs";

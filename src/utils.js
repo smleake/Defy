@@ -155,7 +155,7 @@ const handleCorrections = async (
     const unclean_query = message.content.substring(
         message.content.indexOf("_")
     );
-    const new_query = unclean_query.replace(/[^0-9a-z/-]/gi, "");
+    const new_query = unclean_query.replace(/[^0-9a-z/-\s]/gi, "");
     const new_entries = (commandName === 'define') ? await fetch_all_defs(new_query) : await fetch_thesaurus(new_query);
     let valid_selection = ""
     if(commandName === "define"){
