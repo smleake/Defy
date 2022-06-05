@@ -114,43 +114,14 @@ const fetch_thesaurus = async (query) => {
 const clean_query = (query) => {
     return query.toLowerCase().replace(/[^0-9a-z/-\s]/gi, "");
 };
-const reactionCollector = (
-    message,
-    interaction_author,
-    filter,
-    component_creator
-) => {
-    const collector = message.createReactionCollector({ filter, max: 1 });
-    console.log("Defined collector");
-    collector.on("collect", async (reaction) => {
-        console.log("Collector initiated");
-        const reaction_message = reaction.message;
-        if (reaction.emoji.name === "❌") {
-            console.log(`Deleting message ${reaction.message}`);
-            reaction_message.delete();
-        } else if (reaction.emoji.name === "✅")
-            await handleCorrections(
-                reaction_message,
-                component_creator,
-                interaction_author,
-                message.interaction.commandName
-            );
-    });
-    collector.on("end", (collected, reason) => {
-        console.log(
-            `Collected ${collected.size} items. Ended for reason: ${reason}`
-        );
-    });
-};
 
 //bit of a mess, can use some refactoring later
 const handleCorrections = async (
+    interaction,
     message,
     component_creator,
-    interaction_author,
     commandName
 ) => {
-    message.reactions.cache.get("✅").remove();
     const restart_timer = performance.now();
     const unclean_query = message.content.substring(
         message.content.indexOf("_")
@@ -166,12 +137,7 @@ const handleCorrections = async (
     else {
         valid_selection = "Synonyms"
     }
-        
-       
-    const new_filter = (reaction, user) => {
-        return reaction.emoji.name === "❌" && user.id === interaction_author;
-    };
-    await message.edit(
+    await interaction.update(
         await component_creator(
             new_query,
             new_entries,
@@ -182,13 +148,7 @@ const handleCorrections = async (
             "\n"
         )
     );
-    reactionCollector(
-        message,
-        interaction_author,
-        new_filter,
-        component_creator
-    );
-    console.log("Returned from recursive call");
+
 };
 //bad? somewhat
 const validate_user = (mention_string, members_list, roles_list, interaction_creator) => {
@@ -201,7 +161,6 @@ const validate_user = (mention_string, members_list, roles_list, interaction_cre
         return []
     }) : null
     res.error = (res.message === null) ? `Couldn't find the user(s) you mentioned. Please keep in mind that you cannot mention @ everyone or @ here. <@${interaction_creator}>` : null
-    // console.log(message.join(" "))
     return res
 }
 
@@ -210,6 +169,5 @@ export {
     fetch_thesaurus,
     clean_query,
     validate_user,
-    reactionCollector,
     handleCorrections,
 };

@@ -3,14 +3,14 @@ import {
     clean_query,
     fetch_all_defs,
     fetch_thesaurus,
-    handleCorrections
+    handleCorrections,
 } from "./utils.js";
-import {config} from "dotenv"
+import { config } from "dotenv";
 import fs from "fs";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 import { define_components, thesaurus_components } from "./message-layout.js";
-config()
+config();
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const client = new Client({
@@ -20,7 +20,7 @@ const client = new Client({
         Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
         Intents.FLAGS.GUILDS,
         Intents.FLAGS.GUILD_MEMBERS,
-        Intents.FLAGS.GUILD_PRESENCES
+        Intents.FLAGS.GUILD_PRESENCES,
     ],
     partials: ["CHANNEL", "MESSAGE", "REACTION"],
 });
@@ -30,7 +30,11 @@ const commandFiles = fs
     .filter((file) => file.endsWith(".js"));
 const cache = {};
 const clearCache = () => {
-    console.log(`Clearing cache of size ${Object.keys(cache).length} at ${new Date().toISOString()}`);
+    console.log(
+        `Clearing cache of size ${
+            Object.keys(cache).length
+        } at ${new Date().toISOString()}`
+    );
     for (const prop of Object.getOwnPropertyNames(cache)) {
         delete cache[prop];
     }
@@ -46,52 +50,7 @@ for (const file of commandFiles) {
 client.on("ready", async () => {
     console.log(`Logged in as ${client.user.tag}`);
 });
-/* 
-	need to devise a way to listen to old reactions in case the bot is dismounted or restarted for any reason.
-	the best way i can think of is storing all of the bots messages in a key value pair so i can add collectors to them accordingly 
-*/
-client.on("messageReactionAdd", async (reaction, user) => {
-    // When a reaction is received, check if the structure is partial
 
-    if (reaction.partial) {
-        // If the message this reaction belongs to was removed, the fetching might result in an API error which should be handled
-        try {
-            console.log("Message is partial");
-            await reaction.fetch();
-            await reaction.message.fetch();
-            const message = reaction.message;
-            const commandName = message.interaction.commandName;
-            if (
-                message.interaction !== null &&
-                message.author.id === client.user.id &&
-                user.id === message.interaction.user.id
-            ) {
-                if (reaction.emoji.name === "❌") message.delete();
-                else if (reaction.emoji.name === "✅" && message.content !== "")
-                    await handleCorrections(
-                        message,
-                        commandName === "define"
-                            ? define_components
-                            : thesaurus_components,
-                        message.interaction.user.id,
-                        commandName
-                    );
-            }
-        } catch (error) {
-            console.error(
-                "Something went wrong when fetching the message:",
-                error
-            );
-            return;
-        }
-    }
-});
-client.on("messageCreate", async (message) => {
-    // const channel_members = message.channel.members
-    // const channel = message.
-    // console.log(message.channel.members)
-    // console.log(await message.guild.roles.fetch())
-})
 // feel like this can be refactored to not have switch statements at all and keep command code in their respective files
 client.on("interactionCreate", async (interaction) => {
     if (interaction.isCommand()) {
@@ -105,7 +64,8 @@ client.on("interactionCreate", async (interaction) => {
                     const query = clean_query(
                         interaction.options.getString("word")
                     );
-                    const user_mention = interaction.options.getString("mention")
+                    const user_mention =
+                        interaction.options.getString("mention");
                     if (cache[query] && cache[query].defs) {
                         await command.execute(
                             interaction,
@@ -180,16 +140,47 @@ client.on("interactionCreate", async (interaction) => {
             });
         }
     }
-
-    if (interaction.isMessageComponent()) {
+    if (interaction.isButton() && (interaction.customId === "delete-message" || interaction.customId === "correction")) {
+        
+        const interaction_user = interaction.user.id;
+        const initial_interaction_creator =
+            interaction.message.interaction.user.id;
+        if (interaction_user === initial_interaction_creator) {
+            switch (interaction.customId) {
+                case "delete-message": {
+                    interaction.message.delete();
+                    break;
+                }
+                case "correction": {
+                    const interaction_message = interaction.message;
+                    const command_name =
+                        interaction_message.interaction.commandName;
+                    const component_creator =
+                        command_name === "define"
+                            ? define_components
+                            : thesaurus_components;
+                    await handleCorrections(interaction, interaction_message, component_creator, command_name)
+                    break;
+                }
+            }
+        }
+        else
+            interaction.reply({content: "This can only be done by the message creator.", ephemeral: true})
+        
+    }
+    else if (interaction.isMessageComponent()) {
         try {
             const commandName = interaction.message.interaction.commandName;
             switch (commandName) {
                 case "define": {
-                    const interaction_type = (interaction.isSelectMenu()) ? interaction.values[0] : interaction.customId
+                    const interaction_type = interaction.isSelectMenu()
+                        ? interaction.values[0]
+                        : interaction.customId;
                     //legacy support for when the bot used a hyphen as a tokenizer
-                    const [word, current_index, perf, dict, direction] = (interaction_type).split(`${interaction_type.includes('=') ? "=" : "-"}`);
-                    // console.log(`Word: ${word}\nIndex: ${current_index}\nPerf: ${perf}\nDict: ${dict}\nDir: ${direction}`)
+                    const [word, current_index, perf, dict, direction] =
+                        interaction_type.split(
+                            `${interaction_type.includes("=") ? "=" : "-"}`
+                        );
                     const new_index =
                         direction === undefined // ???? valid
                             ? parseInt(current_index)
@@ -232,9 +223,14 @@ client.on("interactionCreate", async (interaction) => {
                     break;
                 }
                 case "thesaurus": {
-                    const interaction_type = (interaction.isSelectMenu()) ? interaction.values[0] : interaction.customId
+                    const interaction_type = interaction.isSelectMenu()
+                        ? interaction.values[0]
+                        : interaction.customId;
                     //legacy support for when the bot used a hyphen as a tokenizer
-                    const [word, current_index, perf, selection, direction] = (interaction_type).split(`${interaction_type.includes('=') ? "=" : "-"}`);
+                    const [word, current_index, perf, selection, direction] =
+                        interaction_type.split(
+                            `${interaction_type.includes("=") ? "=" : "-"}`
+                        );
                     /* 
                         if direction = undefined -> new index = current index
                         if direction = next -> new index = current index + 1
@@ -284,7 +280,7 @@ client.on("interactionCreate", async (interaction) => {
                 ephemeral: true,
             });
         }
-    } 
+    }
 });
 
 client.login(process.env.DISC_TOKEN);

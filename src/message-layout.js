@@ -16,7 +16,6 @@ const define_components = async (
         const end = performance.now();
         perf = `${end - start > 1 ? parseInt(end - start) : "< 1"}ms`
     }
-
     const message = {
         embeds: [
             new MessageEmbed()
@@ -68,6 +67,12 @@ const define_components = async (
                         customId: `${word}=${index}=${perf}=${currentDict}=next`,
                         disabled: index + 1 >= definitions[currentDict].length,
                     },
+                    {
+                        type: "BUTTON",
+                        style: "DANGER",
+                        label: "Delete",
+                        customId: "delete-message"
+                    }
                 ],
             },
             {
@@ -186,6 +191,12 @@ const thesaurus_components = async (
                         customId: `${word}=${index}=${perf}=${thes_selection}=next`,
                         disabled: index + 1 >= thesaurus.length,
                     },
+                    {
+                        type: "BUTTON",
+                        style: "DANGER",
+                        label: "Delete",
+                        customId: "delete-message"
+                    }
                 ],
             },
             {

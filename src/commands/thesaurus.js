@@ -1,6 +1,5 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { thesaurus_components } from "../message-layout.js";
-import { reactionCollector } from "../utils.js"
 export const data = new SlashCommandBuilder()
     .setName("thesaurus")
     .setDescription("Get synonyms and antonymns of any word")
@@ -25,33 +24,31 @@ export async function execute(
             });
             return;
         }
-        const error_message = await interaction.reply({
+        await interaction.reply({
             content: thesaurus.error.message,
+            components: [
+                {
+                    type: "ACTION_ROW",
+                    components: [
+                        {
+                            type: "BUTTON",
+                            style: "SUCCESS",
+                            label: "Yes",
+                            customId: "correction"
+                        },
+                        {
+                            type: "BUTTON",
+                            style: "DANGER",
+                            label: "No",
+                            customId: "delete-message"
+                        }
+                    ]
+                }
+            ],
             fetchReply: true,
         });
-        console.log("Error finding thesaurus entry, created error message");
-        const filter = (reaction, user) => {
-            return (
-                ["❌", "✅"].includes(reaction.emoji.name) &&
-                user.id === interaction.user.id
-            );
-        };
-        await error_message.react("❌");
-        await error_message.react("✅");
-        console.log("Added reactions");
-        reactionCollector(
-            error_message,
-            interaction.user.id,
-            filter,
-            thesaurus_components
-        );
     } else {
-        const filter = (reaction, user) => {
-            return (
-                reaction.emoji.name === "❌" && user.id === interaction.user.id
-            );
-        };
-        const message = await interaction.reply(
+       await interaction.reply(
             await thesaurus_components(
                 query,
                 thesaurus,
@@ -60,13 +57,6 @@ export async function execute(
                 0,
                 thesaurus_selection
             )
-        );
-        await message.react("❌");
-        reactionCollector(
-            message,
-            interaction.user.id,
-            filter,
-            thesaurus_components
         );
     }
 }
