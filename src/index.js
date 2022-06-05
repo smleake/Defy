@@ -67,11 +67,16 @@ client.on("interactionCreate", async (interaction) => {
                     const user_mention =
                         interaction.options.getString("mention");
                     if (cache[query] && cache[query].defs) {
+                        const currentDict =
+                            typeof cache[query].defs.MW === "string" &&
+                            cache[query].defs.Wordnik !== null
+                                ? "Wordnik"
+                                : "MW";
                         await command.execute(
                             interaction,
                             query,
                             cache[query].defs,
-                            cache[query].currDict,
+                            currentDict,
                             start,
                             user_mention
                         );
@@ -85,7 +90,6 @@ client.on("interactionCreate", async (interaction) => {
                             cache[query] = {
                                 ...cache[query],
                                 defs: defs,
-                                currDict: currentDict,
                             };
                         }
                         await command.execute(
@@ -140,8 +144,11 @@ client.on("interactionCreate", async (interaction) => {
             });
         }
     }
-    if (interaction.isButton() && (interaction.customId === "delete-message" || interaction.customId === "correction")) {
-        
+    else if (
+        interaction.isButton() &&
+        (interaction.customId === "delete-message" ||
+            interaction.customId === "correction")
+    ) {
         const interaction_user = interaction.user.id;
         const initial_interaction_creator =
             interaction.message.interaction.user.id;
@@ -159,118 +166,75 @@ client.on("interactionCreate", async (interaction) => {
                         command_name === "define"
                             ? define_components
                             : thesaurus_components;
-                    await handleCorrections(interaction, interaction_message, component_creator, command_name)
+                    await handleCorrections(
+                        interaction,
+                        interaction_message,
+                        component_creator,
+                        command_name
+                    );
                     break;
                 }
             }
-        }
-        else
-            interaction.reply({content: "This can only be done by the message creator.", ephemeral: true})
-        
+        } else
+            interaction.reply({
+                content: "This can only be done by the message creator.",
+                ephemeral: true,
+            });
     }
+    // this can be refactored heavily, redundant code in define and thesauraus switch cases
     else if (interaction.isMessageComponent()) {
         try {
             const commandName = interaction.message.interaction.commandName;
-            switch (commandName) {
-                case "define": {
-                    const interaction_type = interaction.isSelectMenu()
-                        ? interaction.values[0]
-                        : interaction.customId;
-                    //legacy support for when the bot used a hyphen as a tokenizer
-                    const [word, current_index, perf, dict, direction] =
-                        interaction_type.split(
-                            `${interaction_type.includes("=") ? "=" : "-"}`
-                        );
-                    const new_index =
-                        direction === undefined // ???? valid
-                            ? parseInt(current_index)
-                            : direction === "next"
-                            ? parseInt(current_index) + 1
-                            : parseInt(current_index - 1);
-                    if (cache[word] && cache[word].defs) {
-                        interaction.update(
-                            await define_components(
-                                word,
-                                cache[word].defs,
-                                0,
-                                perf,
-                                new_index,
-                                dict
-                            )
-                        );
-                    } else {
-                        // already a valid interaction so we know the inputs are going to valid (naive? maybe)
-                        const defs = await fetch_all_defs(word);
-                        cache[word] = {
-                            ...cache[word],
-                            defs: defs,
-                            currDict: dict,
-                        };
-                        console.log(
-                            `Cache has ${Object.keys(cache).length} entries`
-                        );
-                        interaction.update(
-                            await define_components(
-                                word,
-                                cache[word].defs,
-                                0,
-                                perf,
-                                new_index,
-                                dict
-                            )
-                        );
-                    }
-                    break;
-                }
-                case "thesaurus": {
-                    const interaction_type = interaction.isSelectMenu()
-                        ? interaction.values[0]
-                        : interaction.customId;
-                    //legacy support for when the bot used a hyphen as a tokenizer
-                    const [word, current_index, perf, selection, direction] =
-                        interaction_type.split(
-                            `${interaction_type.includes("=") ? "=" : "-"}`
-                        );
-                    /* 
-                        if direction = undefined -> new index = current index
-                        if direction = next -> new index = current index + 1
-                        else -> new index = current index - 1
-                        not readable at all tbh
-                    */
-                    const new_index =
-                        direction === undefined // ???? valid
-                            ? parseInt(current_index)
-                            : direction === "next"
-                            ? parseInt(current_index) + 1
-                            : parseInt(current_index - 1);
-                    if (cache[word] && cache[word].thes) {
-                        await interaction.update(
-                            await thesaurus_components(
-                                word,
-                                cache[word].thes,
-                                0,
-                                perf,
-                                new_index,
-                                selection
-                            )
-                        );
-                    } else {
-                        // valid word so dont have to check before inserting into cache
-                        const thes = await fetch_thesaurus(word);
-                        cache[word] = { ...cache[word], thes: thes };
-                        await interaction.update(
-                            await thesaurus_components(
-                                word,
-                                thes,
-                                0,
-                                perf,
-                                new_index,
-                                selection
-                            )
-                        );
-                    }
-                    break;
-                }
+            const cache_entry_key = commandName === "define" ? "defs" : "thes";
+            const component_creator =
+                commandName === "define"
+                    ? define_components
+                    : thesaurus_components;
+            const fetch_entries =
+                commandName === "define" ? fetch_all_defs : fetch_thesaurus;
+            const interaction_type = interaction.isSelectMenu()
+                ? interaction.values[0]
+                : interaction.customId;
+            //legacy support for when the bot used a hyphen as a tokenizer
+            const [word, current_index, perf, entry_type, direction] =
+                interaction_type.split(
+                    `${interaction_type.includes("=") ? "=" : "-"}`
+                );
+            const new_index =
+                direction === undefined // ???? valid
+                    ? parseInt(current_index)
+                    : direction === "next"
+                    ? parseInt(current_index) + 1
+                    : parseInt(current_index - 1);
+            if (cache[word] && cache[word][cache_entry_key]) {
+                interaction.update(
+                    await component_creator(
+                        word,
+                        cache[word][cache_entry_key],
+                        0,
+                        perf,
+                        new_index,
+                        entry_type
+                    )
+                );
+            } else {
+                // already a valid interaction so we know the inputs are going to valid (naive? maybe)
+                const entries = await fetch_entries(word);
+                cache[word] = {
+                    ...cache[word],
+                    [cache_entry_key]: entries,
+                };
+                console.log(`Cache has ${Object.keys(cache).length} entries`);
+                interaction.update(
+                    await component_creator(
+                        word,
+                        cache[word][cache_entry_key],
+                        0,
+                        perf,
+                        new_index,
+                        entry_type
+                    )
+                );
             }
         } catch (error) {
             console.log(error);

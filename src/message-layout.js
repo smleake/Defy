@@ -44,7 +44,7 @@ const define_components = async (
                         .join("\n")
                 )
                 .setFooter({
-                    text: `Defy Version 1.0.0 • Query took: ${perf}`,
+                    text: `Defy Version 1.1.0 • Query took: ${perf}`,
                     iconURL:
                         "https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/VisualEditor_-_Icon_-_Open-book-2.svg/1024px-VisualEditor_-_Icon_-_Open-book-2.svg.png",
                 }),
@@ -168,7 +168,7 @@ const thesaurus_components = async (
                           )
                 )
                 .setFooter({
-                    text: `Defy Version 1.0.0 • Query took: ${perf}`,
+                    text: `Defy Version 1.1.0 • Query took: ${perf}`,
                     iconURL:
                         "https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/VisualEditor_-_Icon_-_Open-book-2.svg/1024px-VisualEditor_-_Icon_-_Open-book-2.svg.png",
                 }),

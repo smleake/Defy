@@ -57,6 +57,7 @@ export async function execute(interaction, query, defs, currentDict, start, ment
                 ],
                 fetchReply: true,
             });
+            return true;
         }
     } catch (err) {
         console.log(err);
