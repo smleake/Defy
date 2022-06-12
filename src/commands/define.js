@@ -16,8 +16,9 @@ export const data = new SlashCommandBuilder()
             .setName("mention")
             .setDescription("Optionally tag other users in the response.")
     )
-export async function execute(interaction, query, defs, currentDict, start, mention) {
+export async function execute(interaction, options) {
     try {
+        const {query, defs, currentDict, start, mention} = options
         if (!defs.not_found) {
             if(mention !== null) {
                 const validate = validate_user(mention, interaction.channel.members, interaction.guild.roles.cache, interaction.user.id)

@@ -64,6 +64,16 @@ client.on("interactionCreate", async (interaction) => {
                     const query = clean_query(
                         interaction.options.getString("word")
                     );
+                    if (query.length === 0)
+                    {
+                        interaction.reply({
+                            content:
+                                "Couldn't find the word you were looking for. Keep in mind that the only special characters allowed are hyphens.",
+                            ephemeral: true,
+                        });
+                        return;
+                    }
+                        
                     const user_mention =
                         interaction.options.getString("mention");
                     if (cache[query] && cache[query].defs) {
@@ -74,11 +84,13 @@ client.on("interactionCreate", async (interaction) => {
                                 : "MW";
                         await command.execute(
                             interaction,
-                            query,
-                            cache[query].defs,
-                            currentDict,
-                            start,
-                            user_mention
+                            {
+                                query: query,
+                                defs: cache[query].defs,
+                                currentDict: currentDict,
+                                start: start,
+                                mention: user_mention
+                            }
                         );
                     } else {
                         const defs = await fetch_all_defs(query);
@@ -94,11 +106,13 @@ client.on("interactionCreate", async (interaction) => {
                         }
                         await command.execute(
                             interaction,
-                            query,
-                            defs,
-                            currentDict,
-                            start,
-                            user_mention
+                            {
+                                query: query,
+                                defs: cache[query].defs,
+                                currentDict: currentDict,
+                                start: start,
+                                mention: user_mention
+                            }
                         );
                     }
                     break;
@@ -143,8 +157,7 @@ client.on("interactionCreate", async (interaction) => {
                 ephemeral: true,
             });
         }
-    }
-    else if (
+    } else if (
         interaction.isButton() &&
         (interaction.customId === "delete-message" ||
             interaction.customId === "correction")

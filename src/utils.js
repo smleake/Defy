@@ -111,6 +111,21 @@ const fetch_thesaurus = async (query) => {
     });
     return formatted_result;
 };
+const get_api_ping = async () => {
+    let start_time = performance.now();
+    await fetch(`https://api.wordnik.com/v4/word.json/test/definitions?limit=10&includeRelated=false&sourceDictionaries=wiktionary&useCanonical=false&includeTags=false&api_key=${process.env.WNIK_KEY}`)
+    let end_time = performance.now()
+    const wiktionary_time = parseInt(end_time - start_time)
+    start_time = performance.now()
+    await fetch(`https://www.dictionaryapi.com/api/v3/references/collegiate/json/test?key=${process.env.MW_DICT_KEY}`)
+    end_time = performance.now()
+    const mw_time = parseInt(end_time - start_time)
+
+    return {
+        wnik_perf: wiktionary_time,
+        mw_perf: mw_time
+    }
+}
 const clean_query = (query) => {
     return query.toLowerCase().replace(/[^0-9a-z/-\s]/gi, "");
 };
@@ -170,4 +185,5 @@ export {
     clean_query,
     validate_user,
     handleCorrections,
+    get_api_ping
 };
