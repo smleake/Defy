@@ -108,7 +108,7 @@ client.on("interactionCreate", async (interaction) => {
                             interaction,
                             {
                                 query: query,
-                                defs: cache[query].defs,
+                                defs: defs,
                                 currentDict: currentDict,
                                 start: start,
                                 mention: user_mention
