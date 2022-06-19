@@ -43,7 +43,7 @@ const fetch_all_defs = async (query) => {
             .then((data) => {
                 if (data.length === 0 || data[0].hwi === undefined) {
                     suggested = data.length !== 0;
-                    return `Couldn't find the word you were looking for${
+                    return `Couldn't find **${query}**${
                         suggested
                             ? `, did you mean ___**${didYouMean(
                                   query,

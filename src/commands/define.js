@@ -18,7 +18,8 @@ export const data = new SlashCommandBuilder()
     )
 export async function execute(interaction, options) {
     try {
-        const {query, defs, currentDict, start, mention} = options
+        const {query, defs, currentDict, start} = options
+        let mention = options.mention
         if (!defs.not_found) {
             if(mention !== null) {
                 const validate = validate_user(mention, interaction.channel.members, interaction.guild.roles.cache, interaction.user.id)
